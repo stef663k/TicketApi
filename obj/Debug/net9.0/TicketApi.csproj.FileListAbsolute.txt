@@ -322,3 +322,5 @@ C:\Users\Stefan\Desktop\Tværfagligt projekt\TicketApi\obj\Debug\net9.0\staticwe
 C:\Users\Stefan\Desktop\Tværfagligt projekt\TicketApi\obj\Debug\net9.0\TicketApi.csproj.Up2Date
 C:\Users\Stefan\Desktop\Tværfagligt projekt\TicketApi\obj\Debug\net9.0\TicketApi.genruntimeconfig.cache
 C:\Users\Stefan\Desktop\Tværfagligt projekt\TicketApi\obj\Debug\net9.0\ref\TicketApi.dll
+C:\Users\Stefan\Desktop\Tværfagligt projekt\TicketApi\bin\Debug\net9.0\AutoMapper.dll
+C:\Users\Stefan\Desktop\Tværfagligt projekt\TicketApi\bin\Debug\net9.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
