@@ -7,7 +7,7 @@ namespace TicketApi.Models;
 
 public class Ticket
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid TickedId { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public TicketCategory Category { get; set; }

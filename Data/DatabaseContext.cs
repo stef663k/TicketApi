@@ -32,6 +32,9 @@ public class DatabaseContext : DbContext
 
         // Ticket
         modelBuilder.Entity<Ticket>()
+            .HasKey(t => t.TickedId);
+        
+        modelBuilder.Entity<Ticket>()
             .HasOne(t => t.AssignedUser)
             .WithMany(u => u.AssignedTickets)
             .HasForeignKey(t => t.AssignedUserId)
