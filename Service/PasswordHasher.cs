@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 public class PasswordHasher : IPasswordHasher
 {
+    private const char Delimiter = ':';
+
     public string HashPassword(string password)
     {
         byte[] salt = RandomNumberGenerator.GetBytes(128/8);
@@ -19,7 +21,12 @@ public class PasswordHasher : IPasswordHasher
 
     public bool VerifyPassword(string hashedPassword, string providedPassword)
     {
-        var parts = hashedPassword.Split(':', 2);
+        if (string.IsNullOrEmpty(hashedPassword) || !hashedPassword.Contains(Delimiter))
+        {
+            return false;
+        }
+
+        var parts = hashedPassword.Split(Delimiter, 2);
         var salt = Convert.FromBase64String(parts[0]);
         var storedHash = Convert.FromBase64String(parts[1]);
 

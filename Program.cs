@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore;
+using TicketApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,10 +17,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddDbContext<DatabaseContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
