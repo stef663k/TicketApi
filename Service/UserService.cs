@@ -25,10 +25,10 @@ public class UserService : IUserService
     }
 
 
-    public async Task<UserResponseDTO> GetUserByIdAsync(Guid userId)
+    public async Task<UserResponseDTO?> GetUserByIdAsync(Guid userId)
     {
         var user = await _databaseContext.Users.FirstOrDefaultAsync(u => u.UserId == userId && !u.IsDeleted);
-        return _mapper.Map<UserResponseDTO>(user);
+        return user == null ? null : _mapper.Map<UserResponseDTO>(user);
     }
 
 
@@ -61,14 +61,29 @@ public class UserService : IUserService
         return _mapper.Map<UserResponseDTO>(user);
     }
 
-    public Task<bool> DeleteUserAsync(Guid userId)
+    public async Task<bool> DeleteUserAsync(Guid userId)
     {
-        throw new NotImplementedException();
+        var user = await _databaseContext.Users
+            .FirstOrDefaultAsync(u => u.UserId == userId && !u.IsDeleted);
+        
+        if (user == null) return false;
+        
+        user.IsDeleted = true;
+        user.Username = $"deleted-{DateTime.UtcNow.Ticks}";  
+        await _databaseContext.SaveChangesAsync();
+        return true;
     }
 
-    public Task<IEnumerable<UserResponseDTO>> SearchUsersAsync(string searchTerm)
+    public async Task<IEnumerable<UserResponseDTO>> SearchUsersAsync(string searchTerm)
     {
-        throw new NotImplementedException();
+        var users = await _databaseContext.Users
+            .Where(u => !u.IsDeleted && 
+                (EF.Functions.Like(u.Username, $"%{searchTerm}%") || 
+                 EF.Functions.Like(u.Email, $"%{searchTerm}%")))
+            .Take(50) 
+            .ToListAsync();
+
+        return _mapper.Map<IEnumerable<UserResponseDTO>>(users);
     }
 
 }

@@ -26,6 +26,8 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 
 builder.Services.AddAutoMapper(typeof(NotificationMappingProfile));
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 var app = builder.Build();
 

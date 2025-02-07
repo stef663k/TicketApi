@@ -31,32 +31,29 @@ public class DatabaseContext : DbContext
             .IsUnique();
 
         // Ticket
-        modelBuilder.Entity<Ticket>()
-            .HasKey(t => t.TickedId);
-        
-        modelBuilder.Entity<Ticket>()
-            .HasOne(t => t.AssignedUser)
-            .WithMany(u => u.AssignedTickets)
-            .HasForeignKey(t => t.AssignedUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Ticket>()
-            .HasOne(t => t.User)
-            .WithMany(u => u.CreatedTickets)
-            .HasForeignKey(t => t.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Ticket>()
-            .Property(t => t.Status)
-            .HasConversion<string>();
+        modelBuilder.Entity<Ticket>(entity => 
+        {
+            entity.HasKey(e => e.TicketId);
             
-        modelBuilder.Entity<Ticket>()
-            .Property(t => t.Priority)
-            .HasConversion<string>();
+            entity.HasOne(t => t.AssignedUser)
+                .WithMany(u => u.AssignedTickets)
+                .HasForeignKey(t => t.AssignedUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(t => t.User)
+                .WithMany(u => u.CreatedTickets)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(t => t.Status)
+                .HasConversion<string>();
             
-        modelBuilder.Entity<Ticket>()
-            .Property(t => t.Category)
-            .HasConversion<string>();
+            entity.Property(t => t.Priority)
+                .HasConversion<string>();
+            
+            entity.Property(t => t.Category)
+                .HasConversion<string>();
+        });
 
         // Comment
         modelBuilder.Entity<Comment>()
