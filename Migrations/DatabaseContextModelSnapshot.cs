@@ -95,7 +95,7 @@ namespace TicketApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("ClosedTime")
+                    b.Property<DateTime?>("ClosedTime")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")

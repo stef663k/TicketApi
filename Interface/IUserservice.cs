@@ -13,4 +13,5 @@ public interface IUserService
     Task<UserResponseDTO?> UpdateUserAsync(Guid userId, UserUpdateDTO updateDto);
     Task<bool> DeleteUserAsync(Guid userId);
     Task<IEnumerable<UserResponseDTO>> SearchUsersAsync(string searchTerm);
+    Task<IEnumerable<UserResponseDTO>> GetUsersAsync();
 }

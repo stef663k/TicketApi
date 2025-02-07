@@ -138,4 +138,14 @@ public class TicketService : ITicketService
         await _context.SaveChangesAsync();
         return _mapper.Map<TicketDto>(ticket);
     }
+
+    public async Task<IEnumerable<TicketDto>> GetAllTicketsAsync()
+    {
+        var tickets = await _context.Tickets
+            .Include(t => t.User)
+            .Include(t => t.AssignedUser)
+            .ToListAsync();
+        
+        return _mapper.Map<IEnumerable<TicketDto>>(tickets);
+    }
 }

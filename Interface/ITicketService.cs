@@ -16,4 +16,5 @@ public interface ITicketService
     Task<bool> DeleteTicketAsync(Guid ticketId);
     Task<TicketDto?> UpdateTicketStatusAsync(Guid ticketId, TicketStatus status);
     Task<TicketDto?> AssignTicketAsync(Guid ticketId, Guid? assigneeId);
+    Task<IEnumerable<TicketDto>> GetAllTicketsAsync();
 }

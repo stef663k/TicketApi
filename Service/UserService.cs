@@ -86,4 +86,13 @@ public class UserService : IUserService
         return _mapper.Map<IEnumerable<UserResponseDTO>>(users);
     }
 
+    public async Task<IEnumerable<UserResponseDTO>> GetUsersAsync()
+    {
+        var users = await _databaseContext.Users
+            .Where(u => !u.IsDeleted)
+            .ToListAsync();
+        
+        return _mapper.Map<IEnumerable<UserResponseDTO>>(users);
+    }
+
 }
