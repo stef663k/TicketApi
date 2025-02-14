@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using TicketApi.Models;
 
 namespace TicketApi.DTO;
@@ -16,6 +17,7 @@ public class TicketDto
     public DateTime? ClosedTime { get; set; }
     public Guid? AssignedUserId { get; set; }
     public Guid UserId { get; set; }
+    public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
 }
 
 public class CreateTicketDto
@@ -59,4 +61,29 @@ public class UpdateTicketStatusDto
 public class AssignTicketDto
 {
     public Guid? AssignedUserId { get; set; }
+}
+
+// AutoMapper Profile
+public class TicketMappingProfile : Profile
+{
+    public TicketMappingProfile()
+    {
+        // Ticket Mappings
+        CreateMap<Ticket, TicketDto>()
+            .ForMember(dest => dest.AssignedUserId, 
+                opt => opt.MapFrom(src => src.AssignedUser))
+            .ForMember(dest => dest.AssignedUserId, 
+                opt => opt.MapFrom(src => src.User))
+            .ForMember(dest => dest.Comments, 
+                opt => opt.MapFrom(src => src.Comments));
+
+        CreateMap<CreateTicketDto, Ticket>()
+            .ForMember(dest => dest.CreatedAt, 
+                opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(dest => dest.Status, 
+                opt => opt.MapFrom(_ => TicketStatus.New));
+
+        CreateMap<UpdateTicketDto, Ticket>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+    }
 }

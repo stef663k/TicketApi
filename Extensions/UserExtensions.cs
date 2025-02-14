@@ -1,4 +1,5 @@
 using System.Security.Claims;
+namespace TicketApi.Extensions;
 
 public static class UserExtensions
 {
@@ -6,7 +7,12 @@ public static class UserExtensions
     {
         var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new InvalidOperationException("User ID claim not found");
-            
+
         return Guid.Parse(userIdClaim);
     }
+        public static bool IsAdminOrSupporter(this ClaimsPrincipal user)
+    {
+        return user.IsInRole("Admin") || user.IsInRole("Supporter");
+    }
+
 } 

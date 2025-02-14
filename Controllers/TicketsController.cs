@@ -11,6 +11,7 @@ using TicketApi.Interface;
 using TicketApi.Models;
 using TicketApi.Service;
 using Microsoft.AspNetCore.Authorization;
+using TicketApi.Extensions;
 
 namespace TicketApi.Controllers
 {
@@ -42,18 +43,10 @@ namespace TicketApi.Controllers
             return ticket == null ? NotFound() : Ok(ticket);
         }
 
-        // PUT: api/Tickets/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTicket(Guid id, UpdateTicketDto updateDto)
-        {
-            var result = await _ticketService.UpdateTicketAsync(id, updateDto);
-            return result == null ? NotFound() : NoContent();
-        }
-
         // POST: api/Tickets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Admin,Supporter")]
         public async Task<ActionResult<TicketDto>> PostTicket(CreateTicketDto createDto)
         {
             var userId = User.GetUserId();
@@ -61,8 +54,19 @@ namespace TicketApi.Controllers
             return CreatedAtAction("GetTicket", new { id = ticket.TicketId }, ticket);
         }
 
+        // PUT: api/Tickets/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Supporter")]
+        public async Task<IActionResult> PutTicket(Guid id, UpdateTicketDto updateDto)
+        {
+            var result = await _ticketService.UpdateTicketAsync(id, updateDto);
+            return result == null ? NotFound() : NoContent();
+        }
+
         // DELETE: api/Tickets/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Supporter")]
         public async Task<IActionResult> DeleteTicket(Guid id)
         {
             var result = await _ticketService.DeleteTicketAsync(id);

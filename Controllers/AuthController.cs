@@ -3,31 +3,50 @@ using Microsoft.AspNetCore.Mvc;
 using TicketApi.DTO;
 using TicketApi.Service;
 
-namespace TicketApi.Controllers
+namespace TicketApi.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Produces("application/json")]
+public class AuthController : ControllerBase
 {
-    [Route("api/auth")]
-    [ApiController]
-    public class AuthController : ControllerBase
+    private readonly IAuthService _authService;
+
+    public AuthController(IAuthService authService)
     {
-        private readonly IAuthService _authService;
+        _authService = authService;
+    }
 
-        public AuthController(IAuthService authService)
+    [HttpPost("login")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResponse))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+    {
+        if (!ModelState.IsValid)
         {
-            _authService = authService;
+            Console.WriteLine($"Model errors: {string.Join(", ", ModelState.Values.SelectMany(v => v.Errors))}");
+            return BadRequest(ModelState);
         }
+        
+        var result = await _authService.LoginAsync(loginDto);
+        
+        Console.WriteLine($"Login result: {result != null}");
+        
+        if (result == null)
+            return Unauthorized();
+        
+        return Ok(result);
+    }
 
-        [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> Login(LoginDto loginDto)
-        {
-            var result = await _authService.LoginAsync(loginDto);
-            return result == null ? Unauthorized() : Ok(result);
-        }
-
-        [HttpPost("register")]
-        public async Task<ActionResult<UserResponseDTO>> Register(RegisterDto registerDto)
-        {
-            var result = await _authService.RegisterAsync(registerDto);
-            return result == null ? BadRequest("Username already exists") : Ok(result);
-        }
+    [HttpPost("register")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+    {
+        var result = await _authService.RegisterAsync(registerDto);
+        return result != null ? Ok(result) : BadRequest("Username already exists");
     }
 }
+

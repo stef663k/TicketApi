@@ -14,12 +14,17 @@ public class DatabaseContext : DbContext
     public DbSet<User> Users {get; set;}
     public DbSet<Notification> Notifications {get; set;}
     public DbSet<Comment> Comments {get; set;}
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // User
         modelBuilder.Entity<User>()
             .HasKey(u => u.UserId);
+
+        modelBuilder.Entity<User>()
+            .Property(u => u.UserId)
+            .ValueGeneratedOnAdd(); 
             
         modelBuilder.Entity<User>()
             .Property(u => u.Username)
@@ -69,15 +74,21 @@ public class DatabaseContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         // Notification
-        modelBuilder.Entity<Notification>()
-            .HasOne(n => n.User)
-            .WithMany(u => u.Notifications)
-            .HasForeignKey(n => n.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasOne(n => n.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(n => n.CreatedByUserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<Notification>()
-            .Property(n => n.Type)
-            .HasConversion<string>();
+            entity.HasOne(n => n.User)
+                .WithMany(u => u.Notifications)
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(n => n.Type)
+                .HasConversion<string>();
+        });
     }
 
 }

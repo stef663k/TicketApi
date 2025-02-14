@@ -54,29 +54,34 @@ public class CommentService : ICommentService
         return _mapper.Map<IEnumerable<CommentDto>>(comments);
     }
 
-    public async Task<CommentDto?> UpdateCommentAsync(Guid commentId, UpdateCommentDto dto, Guid userId)
+    public async Task<CommentDto?> UpdateCommentAsync(
+        Guid commentId, 
+        UpdateCommentDto dto,
+        Guid userId)
     {
         var comment = await _context.Comments
-            .FirstOrDefaultAsync(c => c.CommentId == commentId && !c.IsDeleted);
-
-        if (comment == null || comment.UserId != userId) 
-            return null;
-
-        if (!string.IsNullOrWhiteSpace(dto.Text))
-            comment.Text = dto.Text;
-
+            .FirstOrDefaultAsync(c => c.CommentId == commentId && c.UserId == userId);
+        
+        if (comment == null) return null;
+        
+        _mapper.Map(dto, comment);
         await _context.SaveChangesAsync();
         return _mapper.Map<CommentDto>(comment);
     }
 
-    public async Task<bool> DeleteCommentAsync(Guid commentId)
+    public async Task<bool> DeleteCommentAsync(
+        Guid commentId, 
+        Guid userId,
+        bool isAdminOrSupporter)
     {
         var comment = await _context.Comments.FindAsync(commentId);
-        if (comment == null || comment.IsDeleted) 
+        if (comment == null) return false;
+
+        if (comment.UserId != userId && !isAdminOrSupporter)
             return false;
 
-        comment.IsDeleted = true;
-        await _context.SaveChangesAsync();
-        return true;
+        _context.Comments.Remove(comment);
+        return await _context.SaveChangesAsync() > 0;
     }
+
 }

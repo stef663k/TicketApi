@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using TicketApi.Models;
+using AutoMapper;
 
 namespace TicketApi.DTO;
 
@@ -15,7 +16,8 @@ public class UserCreateDTO
     public string PasswordHash { get; set; } = string.Empty;
 
     [Required]
-    public string Email {get; set;} = string.Empty;
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
 
     [Required]
     public UserRole Role { get; set; }
@@ -35,7 +37,17 @@ public class UserResponseDTO
     public Guid UserId { get; set; }
     public string Username { get; set; } = string.Empty;
     public string Email {get; set;} = string.Empty;
-    public UserRole Role { get; set; }
+    public string Role { get; set; }
     public DateTime AccountCreated { get; set; }
     public DateTime? LastLogin { get; set; }
+}
+
+public class UserMappingProfile : Profile
+{
+    public UserMappingProfile()
+    {
+        CreateMap<User, UserResponseDTO>();
+        CreateMap<UserCreateDTO, User>();
+        CreateMap<UserUpdateDTO, User>();
+    }
 }

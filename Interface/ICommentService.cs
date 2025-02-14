@@ -12,6 +12,6 @@ namespace TicketApi.Interface
         Task<CommentDto?> GetCommentByIdAsync(Guid commentId);
         Task<IEnumerable<CommentDto>> GetCommentsByTicketAsync(Guid ticketId);
         Task<CommentDto?> UpdateCommentAsync(Guid commentId, UpdateCommentDto dto, Guid userId);
-        Task<bool> DeleteCommentAsync(Guid commentId);
+        public Task<bool> DeleteCommentAsync(Guid commentId, Guid userId, bool isAdminOrSupporter);
     }
 }

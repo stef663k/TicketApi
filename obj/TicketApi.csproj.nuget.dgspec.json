@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\crazy\\OneDrive\\Skrivebord\\tværProject\\TicketApi-1\\TicketApi.csproj": {}
+    "C:\\Users\\Stefan\\Desktop\\Tværfagligt projekt\\TicketApi\\TicketApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\crazy\\OneDrive\\Skrivebord\\tværProject\\TicketApi-1\\TicketApi.csproj": {
+    "C:\\Users\\Stefan\\Desktop\\Tværfagligt projekt\\TicketApi\\TicketApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\crazy\\OneDrive\\Skrivebord\\tværProject\\TicketApi-1\\TicketApi.csproj",
+        "projectUniqueName": "C:\\Users\\Stefan\\Desktop\\Tværfagligt projekt\\TicketApi\\TicketApi.csproj",
         "projectName": "TicketApi",
-        "projectPath": "C:\\Users\\crazy\\OneDrive\\Skrivebord\\tværProject\\TicketApi-1\\TicketApi.csproj",
-        "packagesPath": "C:\\Users\\crazy\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\crazy\\OneDrive\\Skrivebord\\tværProject\\TicketApi-1\\obj\\",
+        "projectPath": "C:\\Users\\Stefan\\Desktop\\Tværfagligt projekt\\TicketApi\\TicketApi.csproj",
+        "packagesPath": "C:\\Users\\Stefan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Stefan\\Desktop\\Tværfagligt projekt\\TicketApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\crazy\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Stefan\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -54,6 +54,10 @@
             "AutoMapper.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
               "version": "[12.0.1, )"
+            },
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",

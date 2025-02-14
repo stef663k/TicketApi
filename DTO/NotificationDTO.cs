@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using TicketApi.Models;
 
+
 namespace TicketApi.DTO;
 
 public class NotificationDTO
@@ -22,7 +23,7 @@ public class NotificationCreateDTO
     [Required(ErrorMessage = "Notification type is required")]
     public NotificationType Type { get; set; }
 
-    [Required(ErrorMessage = "User ID is required")]
+    [Required(ErrorMessage = "Recipient User ID is required")]
     public Guid UserId { get; set; }
 }
 
@@ -38,24 +39,23 @@ public class NotificationUpdateDTO
 public class NotificationResponseDTO
 {
     public Guid NotificationId { get; set; }
-    public string Message { get; set; } = string.Empty;
-    public NotificationType Type { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public string Content { get; set; } = string.Empty;
     public Guid UserId { get; set; }
+    public UserResponseDTO? User { get; set; }          // Recipient info
+    public Guid CreatedByUserId { get; set; }
+    public UserResponseDTO? CreatedByUser { get; set; }  // Creator info
+    public DateTime CreatedAt { get; set; }
+    public bool IsRead { get; set; }
 }
 
 public class NotificationMappingProfile : Profile
 {
     public NotificationMappingProfile()
     {
-        CreateMap<NotificationCreateDTO, Notification>()
-            .ForMember(dest => dest.CreatedAt, 
-                       opt => opt.MapFrom(_ => DateTime.UtcNow));
-            
-        CreateMap<NotificationUpdateDTO, Notification>()
-            .ForAllMembers(opts => opts.Condition(
-                (src, dest, srcMember) => srcMember != null));
-            
-        CreateMap<Notification, NotificationResponseDTO>();
+        CreateMap<Notification, NotificationResponseDTO>()
+            .ForMember(dest => dest.User, 
+                opt => opt.MapFrom(src => src.User)) // Maps recipient
+            .ForMember(dest => dest.CreatedByUser, 
+                opt => opt.MapFrom(src => src.CreatedByUser)); // Maps creator
     }
 }
