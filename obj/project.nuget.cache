@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/OOwUQIiQyE=",
+  "dgSpecHash": "WTac3DPTfBg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Stefan\\Desktop\\Tværfagligt projekt\\TicketApi\\TicketApi.csproj",
+  "projectFilePath": "C:\\Users\\Stefan\\Desktop\\Tvaerfagligtprojekt\\TicketApi\\TicketApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Stefan\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\Stefan\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

@@ -5,14 +5,18 @@ using Microsoft.IdentityModel.Tokens;
 using TicketApi.Models;
 using TicketApi.Interface;
 using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore;
+using TicketApi.Data;
 
 public class TokenService : ITokenService
 {
     private readonly IConfiguration _config;
+    private readonly DatabaseContext _context;
 
-    public TokenService(IConfiguration config)
+    public TokenService(IConfiguration config, DatabaseContext context)
     {
         _config = config;
+        _context = context;
     }
 
     public string GenerateToken(User user)
@@ -28,8 +32,10 @@ public class TokenService : ITokenService
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Name, user.Username),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
                 new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
@@ -76,6 +82,48 @@ public class TokenService : ITokenService
 
     public string GenerateRefreshToken()
     {
-        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        var randomNumber = new byte[16];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
+    }
+
+    public bool ValidateRefreshToken(string refreshToken, Guid userId)
+    {
+        var storedToken = _context.RefreshTokens
+            .FirstOrDefault(rt => rt.Token == refreshToken 
+                               && rt.UserId == userId
+                               && !rt.IsRevoked);
+        
+        return storedToken != null && storedToken.Expires > DateTime.UtcNow;
+    }
+
+    public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+    {
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)),
+            ValidateLifetime = false // Allow expired tokens
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var principal = tokenHandler.ValidateToken(
+            token, 
+            tokenValidationParameters, 
+            out SecurityToken securityToken);
+        
+        if (securityToken is not JwtSecurityToken jwtSecurityToken || 
+            !jwtSecurityToken.Header.Alg.Equals(
+                SecurityAlgorithms.HmacSha256, 
+                StringComparison.InvariantCultureIgnoreCase))
+        {
+            throw new SecurityTokenException("Invalid token");
+        }
+
+        return principal;
     }
 }

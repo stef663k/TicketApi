@@ -12,7 +12,7 @@ public class User
     public string Email {get; set;} = string.Empty;
     public UserRole Role { get; set; }
     [Required]
-    public DateTime AccountCreated { get; set; }
+    public DateTime AccountCreated { get; set; } = DateTime.UtcNow;
     public DateTime? LastLogin { get; set; }
     public bool IsDeleted { get; set; }
     public ICollection<Ticket> AssignedTickets { get; set; } = new List<Ticket>();
@@ -23,7 +23,7 @@ public class User
 
 public enum UserRole
 {
-    Administrator,
-    Support,
-    User
+    Administrator = 0,
+    Support = 1,
+    User = 2
 }

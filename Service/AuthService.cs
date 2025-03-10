@@ -9,23 +9,24 @@ using TicketApi.Interface;
 using AutoMapper;
 using BCrypt.Net;
 using Microsoft.CodeAnalysis.Scripting;
+using System.Security.Claims;
 
-
+namespace TicketApi.Service;
 public class AuthService : IAuthService
 {
     private readonly DatabaseContext _context;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IPasswordHasher _hasher;
     private readonly ITokenService _tokenService;
     private readonly IMapper _mapper;
 
     public AuthService(
         DatabaseContext context,
-        IPasswordHasher passwordHasher,
+        IPasswordHasher hasher,
         ITokenService tokenService,
         IMapper mapper)
     {
         _context = context;
-        _passwordHasher = passwordHasher;
+        _hasher = hasher;
         _tokenService = tokenService;
         _mapper = mapper;
         _context.Database.EnsureCreated();
@@ -37,42 +38,59 @@ public class AuthService : IAuthService
         try
         {
             Console.WriteLine($"Login attempt for: {loginDto.Username}");
-            
+
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => 
-                    u.Username.ToLower() == loginDto.Username.ToLower() && 
+                .FirstOrDefaultAsync(u =>
+                    u.Username.ToLower() == loginDto.Username.ToLower() &&
                     !u.IsDeleted);
-            
+
             Console.WriteLine($"User found: {user != null}");
-            
+
             if (user == null) return null;
-            
-            Console.WriteLine($"Password match: {_passwordHasher.VerifyPassword(user.PasswordHash, loginDto.Password)}");
-            
+
+            Console.WriteLine($"Password match: {_hasher.VerifyPassword(user.PasswordHash, loginDto.Password)}");
+
             Console.WriteLine($"[{DateTime.UtcNow}] Login attempt for: {loginDto.Username}");
-            
+
             Console.WriteLine($"User found: {user.UserId} | Role: {user.Role} | Last Login: {user.LastLogin}");
             Console.WriteLine($"Stored hash: {user.PasswordHash}");
-            
-            if (!_passwordHasher.VerifyPassword(user.PasswordHash, loginDto.Password))
+
+            if (!_hasher.VerifyPassword(user.PasswordHash, loginDto.Password))
             {
                 Console.WriteLine("Password verification failed");
                 return null;
             }
 
             Console.WriteLine("Password verified");
-            var token = _tokenService.GenerateToken(user);
-            Console.WriteLine($"Token generated: {token?.Substring(0, 20)}... (Full length: {token?.Length})");
-            
-            var response = _mapper.Map<AuthResponse>(user);
-            response!.AccessToken = token ?? throw new InvalidOperationException("Token generation failed");
-            return response;
+            user.LastLogin = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            var accessToken = _tokenService.GenerateAccessToken(user);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+
+            // Store refresh token
+            var refreshTokenEntity = new RefreshToken
+            {
+                Token = refreshToken,
+                UserId = user.UserId,
+                Created = DateTime.UtcNow,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            _context.RefreshTokens.Add(refreshTokenEntity);
+            await _context.SaveChangesAsync();
+
+            return new AuthResponse
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                User = _mapper.Map<UserResponseDTO>(user)
+            };
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[ERROR] {DateTime.UtcNow}: {ex}");
             Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-            throw; // Re-throw to preserve original error
+            throw;
         }
     }
 
@@ -82,13 +100,18 @@ public class AuthService : IAuthService
         {
             Username = registerDto.Username,
             Email = registerDto.Email,
-            PasswordHash = _passwordHasher.HashPassword(registerDto.Password),
+            PasswordHash = _hasher.HashPassword(registerDto.Password),
             Role = registerDto.Role,
         };
-        
+
+        var hashResult = _hasher.HashPassword(registerDto.Password);
+        user.PasswordHash = hashResult;
+
+        Console.WriteLine($"Storing password hash: {hashResult?.Substring(0, 20)}...");
+
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
-        
+
         return new AuthResponse
         {
             User = _mapper.Map<UserResponseDTO>(user)
@@ -99,7 +122,7 @@ public class AuthService : IAuthService
     {
         var token = await _context.RefreshTokens
             .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
-        
+
         if (token != null)
         {
             token.IsRevoked = true;

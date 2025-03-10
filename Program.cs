@@ -13,11 +13,21 @@ using TicketApi.Services;
 using System.Reflection;
 using TicketApi.Profiles;
 using System.Security.Claims;
+using TicketApi.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5126);
+});
+
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new UserRoleConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -108,7 +118,6 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
-
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
