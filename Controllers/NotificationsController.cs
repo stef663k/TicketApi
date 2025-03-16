@@ -34,7 +34,7 @@ public class NotificationsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Supporter")]
+    [Authorize(Roles = "Administrator,Supporter")]
     public async Task<IActionResult> CreateNotification([FromBody] NotificationCreateDTO dto)
     {
         try
@@ -76,7 +76,7 @@ public class NotificationsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin,Supporter")]
+    [Authorize(Roles = "Administrator,Supporter")]
     public async Task<IActionResult> UpdateNotification(
         Guid id, 
         [FromBody] NotificationUpdateDTO dto)
@@ -99,7 +99,7 @@ public class NotificationsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin,Supporter")]
+    [Authorize(Roles = "Administrator,Supporter")]
     public async Task<IActionResult> DeleteNotification(Guid id)
     {
         try

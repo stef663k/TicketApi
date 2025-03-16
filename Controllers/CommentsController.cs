@@ -35,15 +35,31 @@ public class CommentsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CommentDto>> Create([FromBody] CreateCommentDto dto)
     {
-        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? throw new InvalidOperationException());
+        // Parse the user ID from the 'sub' claim
+        var userIdClaim = User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            throw new InvalidOperationException("User ID claim is invalid or not found.");
+        }
+
+        // Create the comment
         var comment = await _commentService.CreateCommentAsync(dto, userId);
+
+        // Return the created comment
         return CreatedAtAction(nameof(GetById), new { commentId = comment.CommentId }, comment);
     }
 
     [HttpPut("{commentId}")]
     public async Task<IActionResult> Update(Guid commentId, [FromBody] UpdateCommentDto dto)
     {
-        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? throw new InvalidOperationException());
+        // Parse the user ID from the 'sub' claim
+        var userIdClaim = User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        {
+            throw new InvalidOperationException("User ID claim is invalid or not found.");
+        }
+
+        // Update the comment
         var result = await _commentService.UpdateCommentAsync(commentId, dto, userId);
         return result == null ? NotFound() : Ok(result);
     }
@@ -51,14 +67,17 @@ public class CommentsController : ControllerBase
     [HttpDelete("{commentId}")]
     public async Task<IActionResult> Delete(Guid commentId)
     {
+        // Retrieve user ID and check if the user is admin or supporter
         var userId = User.GetUserId();
         var isAdminOrSupporter = User.IsAdminOrSupporter();
-        
+
+        // Attempt to delete the comment
         var success = await _commentService.DeleteCommentAsync(
             commentId, 
             userId, 
             isAdminOrSupporter);
         
+        // Return appropriate response based on the success of the delete operation
         return success ? NoContent() : NotFound();
     }
 }

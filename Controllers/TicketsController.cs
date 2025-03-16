@@ -46,7 +46,7 @@ namespace TicketApi.Controllers
         // POST: api/Tickets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        [Authorize(Roles = "Admin,Supporter")]
+        [Authorize(Roles = "Administrator,Supporter")]
         public async Task<ActionResult<TicketDto>> PostTicket(CreateTicketDto createDto)
         {
             var userId = User.GetUserId();
@@ -57,7 +57,7 @@ namespace TicketApi.Controllers
         // PUT: api/Tickets/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Supporter")]
+        [Authorize(Roles = "Administrator,Supporter")]
         public async Task<IActionResult> PutTicket(Guid id, UpdateTicketDto updateDto)
         {
             var result = await _ticketService.UpdateTicketAsync(id, updateDto);
@@ -66,7 +66,7 @@ namespace TicketApi.Controllers
 
         // DELETE: api/Tickets/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin,Supporter")]
+        [Authorize(Roles = "Administrator,Supporter")]
         public async Task<IActionResult> DeleteTicket(Guid id)
         {
             var result = await _ticketService.DeleteTicketAsync(id);

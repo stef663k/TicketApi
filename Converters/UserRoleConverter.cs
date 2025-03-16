@@ -6,21 +6,24 @@ public class UserRoleConverter : JsonConverter<UserRole>
 {
     public override UserRole Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.String)
+        switch (reader.TokenType)
         {
-            var roleString = reader.GetString();
-            if (Enum.TryParse<UserRole>(roleString, true, out var role))
-            {
-                return role;
-            }
-            throw new JsonException($"Unable to convert {roleString} to {nameof(UserRole)}.");
+            case JsonTokenType.String:
+                var roleString = reader.GetString();
+                if (Enum.TryParse<UserRole>(roleString, true, out var role))
+                {
+                    return role;
+                }
+                break;
+                
+            case JsonTokenType.Number when reader.TryGetInt32(out var numericValue):
+                if (Enum.IsDefined(typeof(UserRole), numericValue))
+                {
+                    return (UserRole)numericValue;
+                }
+                break;
         }
-
-        if (reader.TokenType == JsonTokenType.Number)
-        {
-            return (UserRole)reader.GetInt32();
-        }
-
+        
         throw new JsonException($"Unable to convert {reader.GetString()} to {nameof(UserRole)}.");
     }
 
